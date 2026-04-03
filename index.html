@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>VCC · MT01 · SEEC H&S</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;
+  --bdr:#30363D;--bdr2:#484F58;
+  --txt:#E6EDF3;--txt2:#8B949E;--txt3:#6E7681;
+  --green:#3FB950;--green-dim:#1A4D23;--green-bg:rgba(63,185,80,.13);
+  --red:#F85149;--red-bg:rgba(248,81,73,.13);
+  --amber:#E3B341;--amber-bg:rgba(227,179,65,.13);
+  --blue:#58A6FF;--blue-bg:rgba(88,166,255,.13);
+  --purple:#BC8CFF;--purple-bg:rgba(188,140,255,.13);
+  --r:10px;--rsm:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:15px}
+
+/* TOP BAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:13px;font-weight:500;color:var(--txt);font-family:'DM Mono',monospace;letter-spacing:.3px}
+.topbar-sub{font-size:10px;color:var(--txt3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.online-dot.off{background:var(--red)}
+.online-lbl{font-size:11px;color:var(--txt3)}
+
+/* ROL SELECTOR */
+.rol-selector{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.rol-lbl{font-size:12px;color:var(--txt3);white-space:nowrap}
+.rol-sel{flex:1;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rsm);color:var(--txt);padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;appearance:none}
+.rol-sel:focus{border-color:var(--green)}
+
+/* NAV */
+.nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--bdr);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-tab{flex-shrink:0;padding:10px 16px;font-size:12px;font-weight:500;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none}
+.nav-tab.active{color:var(--txt);border-bottom-color:var(--green)}
+
+/* DATE BAR */
+.datebar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--bdr)}
+.date-nav{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rsm);color:var(--txt2);width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;user-select:none;touch-action:manipulation}
+.date-nav:active{background:var(--bdr)}
+.date-inp{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rsm);color:var(--txt);padding:6px 10px;font-size:13px;font-family:'DM Mono',monospace;outline:none;flex:1;text-align:center}
+.date-inp:focus{border-color:var(--green)}
+.today-btn{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rsm);color:var(--txt3);padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap;user-select:none}
+
+/* CUOTA BANNER */
+.cuota-banner{margin:12px 16px 0;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px}
+.cuota-banner-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cuota-banner-title{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px}
+.cuota-cfg-btn{font-size:12px;color:var(--blue);cursor:pointer;user-select:none;
+  background:none;border:none;font-family:'DM Sans',sans-serif;padding:4px 8px;
+  -webkit-tap-highlight-color:rgba(88,166,255,.2);touch-action:manipulation}
+.cuota-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cuota-cell{background:var(--bg3);border-radius:var(--rsm);padding:8px 6px;text-align:center;border:1px solid var(--bdr)}
+.cuota-cell.verde{background:var(--green-bg);border-color:var(--green)}
+.cuota-cell.rojo{background:var(--red-bg);border-color:var(--red)}
+.cuota-cell-num{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;line-height:1}
+.cuota-cell.verde .cuota-cell-num{color:var(--green)}
+.cuota-cell.rojo .cuota-cell-num{color:var(--red)}
+.cuota-cell.sin .cuota-cell-num{color:var(--txt2)}
+.cuota-cell-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+.cuota-cell-sub{font-size:9px;margin-top:1px;font-weight:500}
+.cuota-cell.verde .cuota-cell-sub{color:var(--green)}
+.cuota-cell.rojo .cuota-cell-sub{color:var(--red)}
+
+/* CONTENT */
+.content{padding:12px 16px 100px}
+
+/* ROLE CARD */
+.role-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:10px;overflow:hidden;border-left:3px solid var(--bdr)}
+.role-card.verde{border-left-color:var(--green)}
+.role-card.rojo{border-left-color:var(--red)}
+.role-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;gap:10px}
+.role-info{}
+.role-name{font-size:14px;font-weight:500}
+.role-sub{font-size:12px;color:var(--txt2);margin-top:1px}
+.vcc-counter{display:flex;align-items:center;gap:10px}
+.cnt-btn{width:44px;height:44px;border-radius:var(--rsm);border:1px solid var(--bdr);background:var(--bg3);color:var(--txt);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;flex-shrink:0;font-weight:300;line-height:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.cnt-btn:active{background:var(--bdr2)}
+.cnt-display{text-align:center}
+.cnt-num{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;line-height:1}
+.cnt-lbl{font-size:11px;color:var(--txt2);margin-top:2px}
+
+/* FRM SELECTOR */
+.frm-selector{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rsm);padding:10px 14px;margin-bottom:8px}
+.frm-selector-lbl{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.frm-sel{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rsm);color:var(--txt);padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;appearance:none}
+.frm-sel:focus{border-color:var(--green)}
+.frm-sel option{background:var(--bg2);color:var(--txt)}
+
+/* HALLAZGOS */
+.hall-section{border-top:1px solid var(--bdr);padding:10px 14px}
+.hall-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.hall-title{font-size:12px;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px}
+.add-hall{font-size:12px;color:var(--blue);cursor:pointer;user-select:none;
+  padding:6px 10px;background:none;border:none;font-family:'DM Sans',sans-serif;
+  -webkit-tap-highlight-color:rgba(88,166,255,.2);touch-action:manipulation}
+.hall-item{background:var(--bg3);border-radius:var(--rsm);padding:10px 12px;margin-bottom:6px;border:1px solid var(--bdr)}
+.hall-desc{width:100%;background:transparent;border:none;color:var(--txt);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;resize:none;line-height:1.5;min-height:44px}
+.hall-sep{border:none;border-top:1px solid var(--bdr);margin:6px 0}
+.hall-control-lbl{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.hall-control{width:100%;background:transparent;border:none;color:var(--txt);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:none;line-height:1.4;min-height:36px}
+.hall-control::placeholder{color:var(--txt2)}
+.hall-desc::placeholder{color:var(--txt2)}
+.hall-positivo{border-color:var(--green-dim);background:rgba(63,185,80,.05)}
+.hall-tipo-btn.sel-positivo{background:rgba(63,185,80,.15);border-color:var(--green);color:var(--green)}
+.hall-actions{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.hall-tipo-btn{font-size:11px;font-weight:500;padding:6px 12px;border-radius:4px;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt2);cursor:pointer;user-select:none;white-space:nowrap;transition:all .12s;font-family:'DM Sans',sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.hall-tipo-btn.sel-momento{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.hall-tipo-btn.sel-fecha{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.hall-tipo-btn.sel-cerrado{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.hall-tipo-btn.sel-acorregir{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);font-weight:600}
+.hall-date{background:var(--bg2);border:1px solid var(--bdr);border-radius:4px;color:var(--txt2);padding:4px 8px;font-size:11px;font-family:'DM Mono',monospace;outline:none}
+.hall-date:focus{border-color:var(--amber)}
+.hall-del{font-size:13px;color:var(--txt3);cursor:pointer;margin-left:auto;padding:8px 10px;user-select:none;touch-action:manipulation}
+.hall-del:active{color:var(--red)}
+.no-hall{font-size:13px;color:var(--txt2);padding:4px 0}
+
+/* ENVIADO BADGE */
+.enviado-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-bg);border:1px solid var(--green);border-radius:4px;padding:4px 12px;font-size:12px;color:var(--green);font-weight:500;margin-top:6px}
+
+/* BOTTOM AREA */
+.bottom-area{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--bdr);padding:12px 16px;z-index:40}
+.enviar-btn{width:100%;background:var(--green);border:none;border-radius:var(--r);color:#0D1117;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;padding:14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.enviar-btn:active{background:#2ea043;transform:scale(.99)}
+.enviar-btn:disabled{background:var(--bg3);color:var(--txt3);cursor:default;transform:none}
+.enviar-btn.sending{background:var(--amber)}
+.enviar-hint{font-size:11px;color:var(--txt3);text-align:center;margin-top:6px}
+
+/* MES VIEW */
+.for-box{background:var(--bg2);border:1px solid var(--green);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.for-title{font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.for-num{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;color:var(--green);line-height:1}
+.for-sub{font-size:12px;color:var(--txt3);margin-top:4px}
+.mes-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.mes-stat{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;text-align:center}
+.mes-stat-num{font-family:'DM Mono',monospace;font-size:28px;font-weight:500}
+.mes-stat-lbl{font-size:11px;color:var(--txt3);margin-top:4px;text-transform:uppercase;letter-spacing:.3px}
+.rol-mes-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.rol-mes-row:last-child{border-bottom:none}
+.rol-mes-name{font-size:13px;font-weight:500}
+.rol-mes-detail{font-size:11px;margin-top:1px}
+.rol-mes-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
+
+/* HISTORIAL */
+.hist-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
+.hist-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.hist-fecha{font-family:'DM Mono',monospace;font-size:13px;color:var(--txt2)}
+.hist-total{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--green)}
+.hist-roles{display:flex;gap:6px;flex-wrap:wrap}
+.hist-pill{font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--bdr);background:var(--bg3);color:var(--txt2)}
+.hist-pill.hizo{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.hist-hall-txt{font-size:11px;color:var(--txt3);margin-top:6px;line-height:1.5}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;backdrop-filter:blur(3px);align-items:flex-end;cursor:pointer;touch-action:manipulation}
+.overlay.open{display:flex}
+.sheet{background:var(--bg2);border:1px solid var(--bdr);border-bottom:none;border-radius:16px 16px 0 0;width:100%;padding:20px 20px 40px;animation:su .2s ease-out;max-height:85vh;overflow-y:auto}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:4px;background:var(--bdr2);border-radius:2px;margin:0 auto 16px}
+.sheet-title{font-size:16px;font-weight:500;margin-bottom:4px}
+.sheet-sub{font-size:12px;color:var(--txt3);margin-bottom:18px;line-height:1.5}
+.cfg-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bdr)}
+.cfg-row:last-of-type{border-bottom:none}
+.cfg-label{font-size:14px;font-weight:500}
+.cfg-sub{font-size:11px;color:var(--txt3);margin-top:1px}
+.cfg-inp{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rsm);color:var(--txt);padding:8px 12px;font-size:16px;font-family:'DM Mono',monospace;width:72px;text-align:center;outline:none}
+.cfg-inp:focus{border-color:var(--green)}
+.cfg-save{width:100%;margin-top:16px;background:var(--green);border:none;border-radius:var(--r);color:#0D1117;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;padding:13px;cursor:pointer}
+.cfg-save:active{background:#2ea043}
+
+/* LOADING */
+.loading{text-align:center;padding:40px 16px;color:var(--txt3)}
+.loading-spin{font-size:24px;display:block;margin-bottom:10px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 16px;color:var(--txt3)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--bdr2);border-radius:20px;padding:8px 18px;font-size:13px;color:var(--txt);z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.toast.success{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.toast.error{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">VCC · Pressmeeting · MT01</div>
+    <div class="topbar-sub">SEEC H&S · Cerro Negro</div>
+  </div>
+  <div class="topbar-right">
+    <div class="online-dot" id="online-dot"></div>
+    <div class="online-lbl" id="online-lbl">conectando…</div>
+  </div>
+</div>
+
+<!-- ROL SELECTOR -->
+<div class="rol-selector">
+  <div class="rol-lbl">Mi rol:</div>
+  <select class="rol-sel" id="mi-rol" onchange="onRolChange(this.value)">
+    <option value="">— seleccioná tu rol —</option>
+    <option value="lic">Licenciado H&S</option>
+    <option value="tec">Técnico H&S</option>
+    <option value="sup">Supervisor de obra</option>
+    <option value="jefe">Jefe de obra</option>
+    <option value="admin">Administrador (ver todos)</option>
+  </select>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-tab active" onclick="setView('hoy')">Turno</div>
+  <div class="nav-tab" onclick="setView('mes')">Mes</div>
+  <div class="nav-tab" onclick="setView('hist')">Historial</div>
+</div>
+
+<!-- DATE BAR -->
+<div class="datebar">
+  <div class="date-nav" onclick="moveDay(-1)">‹</div>
+  <input class="date-inp" type="date" id="date-inp" onchange="onDateChange(this.value)">
+  <div class="date-nav" onclick="moveDay(1)">›</div>
+  <div class="today-btn" onclick="goToday()">Hoy</div>
+</div>
+
+<!-- CUOTA BANNER -->
+<div class="cuota-banner">
+  <div class="cuota-banner-hdr">
+    <span class="cuota-banner-title">Cuota mensual</span>
+    <button class="cuota-cfg-btn" onclick="openCfg()">Configurar ›</button>
+  </div>
+  <div class="cuota-grid" id="cuota-grid"></div>
+</div>
+
+<!-- VIEWS -->
+<div id="view-hoy" class="content"></div>
+<div id="view-mes" class="content" style="display:none"></div>
+<div id="view-hist" class="content" style="display:none"></div>
+
+<!-- BOTTOM ENVIAR -->
+<div class="bottom-area" id="bottom-area" style="display:none">
+  <button class="enviar-btn" id="enviar-btn" onclick="enviarRegistro()">
+    <span id="enviar-icon">↑</span>
+    <span id="enviar-txt">Enviar registro</span>
+  </button>
+  <div class="enviar-hint" id="enviar-hint">Una vez enviado no podés modificarlo</div>
+</div>
+
+<!-- CUOTA CONFIG OVERLAY -->
+<div class="overlay" id="cfg-ov" onclick="closeCfgOut(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Cuotas mensuales</div>
+    <div class="sheet-sub">VCC a realizar por rol en el mes.<br>Cambiá cuando NWM actualice los FRM trimestrales.</div>
+    <div id="cfg-rows"></div>
+    <button class="cfg-save" onclick="saveCfg()">Guardar cuotas</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG ════════════════════════════════════════════════════════════════
+const SHEET_ID    = '1fD1kPU2_YY7G9o_VaGqPOGX2QjvLTpdmA-OEmwgZ4mM';
+const SHEET_TAB   = 'VCC_MT01_Registros';
+const API_KEY     = 'AIzaSyBUI8nclBZSjMwujYOZE4S70sc39s981us';
+const SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbz6CqHIYmwuYL_XoBGp5jbMvZsRJhO5StMoT_FR_e9R-6C7yg5cQl2PQoih6oFaqMk/exec';
+const BASE_URL    = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
+
+// ══ CONSTANTES ════════════════════════════════════════════════════════════
+const ROLES = [
+  { key:'lic',  label:'Licenciado H&S',    short:'Lic.' },
+  { key:'tec',  label:'Técnico H&S',       short:'Téc.' },
+  { key:'sup',  label:'Supervisor',        short:'Sup.' },
+  { key:'jefe', label:'Jefe de obra',      short:'Jefe' },
+];
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+const FRM_LIST = [
+  'Caída de altura',
+  'Interacción vehículo y peatón — Superficie',
+  'Colisión o vuelco de vehículo — Superficie',
+  'Caída de vehículo pesado al vacío',
+  'Incidente con neumáticos',
+  'Grúas e izajes (Hidrogrúa / Equipo de levante)',
+  'Contacto con electricidad',
+  'Liberación descontrolada de energía (LOTOTO)',
+  'Atrapamiento en equipos rotativos',
+  'Golpeado por caída de objetos',
+  'Inestabilidad del terreno — Superficie',
+  'Excavaciones y zanjas',
+  'Exposición a polvos y gases peligrosos',
+  'Material peligroso',
+  'Caídas a fuentes de agua',
+  'Evento en espacios confinados',
+  'Estructuras temporales',
+  'Incendio o explosión',
+  'Manipulación de explosivos',
+  'Pérdida de control de la aviación',
+  'Otro — no listado',
+];
+
+// ══ STATE ═════════════════════════════════════════════════════════════════
+let miRol      = '';
+let curFecha   = todayStr();
+let curView    = 'hoy';
+let cuotas     = {};          // { 'YYYY-MM': { lic:N, tec:N, sup:N, jefe:N } }
+let borrador   = {};          // { roleKey: { vcc:N, hallazgos:[] } }  — en edición local
+let sheetRows  = [];          // filas leídas del Sheet
+let isOnline   = false;
+let isSending  = false;
+
+// Device fingerprint (para identificar dispositivo sin login)
+const DEVICE_ID = (() => {
+  let id = localStorage.getItem('vcc_device_id');
+  if (!id) { id = 'D' + Date.now().toString(36).toUpperCase(); localStorage.setItem('vcc_device_id', id); }
+  return id;
+})();
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function nowStr()   { return new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
+function mesKey(s)  { const [y,m] = s.split('-'); return `${y}-${m}`; }
+function mesLabel(s){ const [y,m] = s.split('-'); return `${MESES[parseInt(m)-1]} ${y}`; }
+function fmtFecha(s){ if(!s)return''; const[y,m,d]=s.split('-'); return `${parseInt(d)} ${MESES[parseInt(m)-1]} ${y}`; }
+function prevDay(s) { const d=new Date(s+'T12:00:00'); d.setDate(d.getDate()-1); return d.toISOString().split('T')[0]; }
+function nextDay(s) { const d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; }
+
+// ══ PERSISTENCIA LOCAL ════════════════════════════════════════════════════
+function loadLocal() {
+  try {
+    const c = localStorage.getItem('vcc_cuotas_v3'); if(c) cuotas = JSON.parse(c);
+    const r = localStorage.getItem('vcc_mirol');     if(r) miRol  = r;
+    const b = localStorage.getItem('vcc_borrador');  if(b) borrador = JSON.parse(b);
+  } catch(e){}
+}
+function saveLocal() {
+  try {
+    localStorage.setItem('vcc_cuotas_v3', JSON.stringify(cuotas));
+    localStorage.setItem('vcc_mirol',     miRol);
+    localStorage.setItem('vcc_borrador',  JSON.stringify(borrador));
+  } catch(e){}
+}
+
+// ══ GOOGLE SHEETS API ═════════════════════════════════════════════════════
+async function checkOnline() {
+  try {
+    const url = `${BASE_URL}/${encodeURIComponent(SHEET_TAB+'!A1')}?key=${API_KEY}`;
+    const r   = await fetch(url);
+    isOnline  = r.ok;
+  } catch(e) { isOnline = false; }
+  updateOnlineDot();
+}
+
+function updateOnlineDot() {
+  document.getElementById('online-dot').className = 'online-dot' + (isOnline ? '' : ' off');
+  document.getElementById('online-lbl').textContent = isOnline ? 'conectado' : 'sin conexión';
+}
+
+async function initSheet() {
+  try {
+    const checkUrl = `${BASE_URL}/${encodeURIComponent(SHEET_TAB+'!A1')}?key=${API_KEY}`;
+    const r = await fetch(checkUrl);
+    const d = await r.json();
+    if (!d.values) {
+      await writeToSheet([[
+        'Fecha','Hora','Rol','Rol_key','VCC_cantidad','Fila_VCC',
+        'FRM_verificado','Hallazgo_tipo','Hallazgo_desc','Accion_control',
+        'Hallazgo_fecha_vto','Hallazgo_cerrado','Timestamp_envio','Device_ID'
+      ]]);
+    }
+  } catch(e) {}
+}
+
+async function readSheet() {
+  try {
+    const url = `${BASE_URL}/${encodeURIComponent(SHEET_TAB+'!A:L')}?key=${API_KEY}`;
+    const r   = await fetch(url);
+    const d   = await r.json();
+    sheetRows = d.values || [];
+    isOnline  = true;
+  } catch(e) {
+    isOnline = false;
+  }
+  updateOnlineDot();
+}
+
+async function writeToSheet(rows) {
+  // Apps Script needs no-cors; response is opaque (status 0) but data still writes
+  await fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ rows })
+  });
+  return { ok: true };
+}
+
+// ══ DATOS DEL SHEET ═══════════════════════════════════════════════════════
+// Rows: [Fecha, Hora, Rol, Rol_key, VCC_cantidad, Hall_num, Hall_desc, Hall_tipo, Hall_fvto, Hall_cerrado, Timestamp, Device]
+function getSheetRowsForDate(fecha, rolKey) {
+  // Skip header row (index 0)
+  return sheetRows.slice(1).filter(r => r[0] === fecha && (rolKey === '' || r[3] === rolKey));
+}
+
+function getVccMesFromSheet(rolKey) {
+  const mk = mesKey(curFecha);
+  return sheetRows.slice(1)
+    .filter(r => r[0] && r[0].startsWith(mk) && r[3] === rolKey && r[5] === '1')
+    .reduce((sum, r) => sum + (parseInt(r[4]) || 0), 0);
+}
+
+function getAllVccMes() {
+  const mk = mesKey(curFecha);
+  return sheetRows.slice(1)
+    .filter(r => r[0] && r[0].startsWith(mk) && r[5] === '1')
+    .reduce((sum, r) => sum + (parseInt(r[4]) || 0), 0);
+}
+
+function getHallazgosMes() {
+  const mk = mesKey(curFecha);
+  const halls = sheetRows.slice(1).filter(r => r[0] && r[0].startsWith(mk) && r[6] && r[6].trim() !== '');
+  const total  = halls.length;
+  const cerr   = halls.filter(r => r[9] === 'SI').length;
+  return { total, cerr, pend: total - cerr };
+}
+
+function getEnviosHoy(rolKey) {
+  return getSheetRowsForDate(curFecha, rolKey);
+}
+
+// ══ CUOTAS ════════════════════════════════════════════════════════════════
+function getCuota(key) {
+  const mk = mesKey(curFecha);
+  return (cuotas[mk] && cuotas[mk][key]) ? parseInt(cuotas[mk][key]) : 0;
+}
+
+function semaforoClass(key) {
+  const c = getCuota(key); if (!c) return 'sin';
+  return getVccMesFromSheet(key) >= c ? 'verde' : 'rojo';
+}
+
+function renderCuotaBanner() {
+  document.getElementById('cuota-grid').innerHTML = ROLES.map(r => {
+    const cuota = getCuota(r.key);
+    const real  = getVccMesFromSheet(r.key);
+    const cls   = semaforoClass(r.key);
+    let sub = '';
+    if (cls === 'verde') sub = `<div class="cuota-cell-sub">✓ ok</div>`;
+    else if (cls === 'rojo' && cuota) sub = `<div class="cuota-cell-sub">faltan ${cuota - real}</div>`;
+    return `<div class="cuota-cell ${cls}">
+      <div class="cuota-cell-num">${real}${cuota ? '/'+cuota : ''}</div>
+      <div class="cuota-cell-lbl">${r.short}</div>
+      ${sub}
+    </div>`;
+  }).join('');
+}
+
+// ══ BORRADOR (edición local pre-envío) ════════════════════════════════════
+function getBorrador(key) {
+  if (!borrador[key]) borrador[key] = { vcc: 0, frm: '', hallazgos: [] };
+  if (!borrador[key].frm) borrador[key].frm = '';
+  return borrador[key];
+}
+function clearBorrador(key) {
+  borrador[key] = { vcc: 0, frm: '', hallazgos: [] };
+  saveLocal();
+}
+
+// ══ VISTA HOY ════════════════════════════════════════════════════════════
+function renderHoy() {
+  const cont = document.getElementById('view-hoy');
+  const isAdmin = miRol === 'admin';
+  const rolesToShow = isAdmin ? ROLES : ROLES.filter(r => r.key === miRol);
+
+  if (!miRol) {
+    cont.innerHTML = `<div class="empty"><div class="empty-icon">👆</div><p style="font-size:14px">Seleccioná tu rol arriba para empezar</p></div>`;
+    document.getElementById('bottom-area').style.display = 'none';
+    return;
+  }
+
+  const html = rolesToShow.map(r => {
+    const bor      = getBorrador(r.key);
+    const enviados = getEnviosHoy(curFecha, r.key);
+    const totalHoy = enviados.filter(row => row[5]==='1').reduce((s,row)=>s+(parseInt(row[4])||0),0) + (bor.vcc||0);
+    const cls      = semaforoClass(r.key);
+    const esPropio = r.key === miRol;
+    const soloLeer = isAdmin || !esPropio;
+
+    // Envíos ya realizados hoy (del Sheet)
+    const enviadosHoy = enviados.length > 0
+      ? `<div style="padding:8px 14px 4px;display:flex;flex-wrap:wrap;gap:6px">
+          ${enviados.filter(row=>row[5]==='1').map(row =>
+            `<div class="enviado-badge">✓ ${row[4]} VCC — ${row[1]}</div>`
+          ).join('')}
+         </div>`
+      : '';
+
+    // Hallazgos del borrador
+    const hallsHTML = bor.hallazgos.length
+      ? bor.hallazgos.map((h, hi) => renderHall(r.key, hi, h)).join('')
+      : `<div class="no-hall">Sin hallazgos, desvíos ni aspectos positivos registrados</div>`;
+
+    const counterHTML = soloLeer
+      ? `<div style="text-align:right"><div class="rol-mes-num" style="color:var(--${cls==='verde'?'green':cls==='rojo'?'red':'txt2'})">${totalHoy}</div><div style="font-size:10px;color:var(--txt3)">VCC hoy</div></div>`
+      : `<div class="vcc-counter">
+          <div class="cnt-btn" onclick="chgVCC('${r.key}',-1)">−</div>
+          <div class="cnt-display">
+            <div class="cnt-num" id="cnt-${r.key}">${bor.vcc||0}</div>
+            <div class="cnt-lbl">borrador</div>
+          </div>
+          <div class="cnt-btn" onclick="chgVCC('${r.key}',1)">+</div>
+        </div>`;
+
+    return `<div class="role-card ${cls}" id="card-${r.key}">
+      <div class="role-header">
+        <div class="role-info">
+          <div class="role-name">${r.label}</div>
+          <div class="role-sub">Total hoy: ${totalHoy} VCC</div>
+        </div>
+        ${counterHTML}
+      </div>
+      ${enviadosHoy}
+      ${!soloLeer ? `<div class="hall-section">
+        <div class="frm-selector">
+          <div class="frm-selector-lbl">FRM verificado en esta VCC</div>
+          <select class="frm-sel" id="frm-sel-${r.key}" onchange="updFRM('${r.key}',this.value)">
+            <option value="">— seleccioná el FRM —</option>
+            ${FRM_LIST.map(f=>`<option value="${f}"${getBorrador(r.key).frm===f?' selected':''}>${f}</option>`).join('')}
+          </select>
+        </div>
+        <div class="hall-hdr">
+          <span class="hall-title">Hallazgos / Desvíos</span>
+          <button class="add-hall" onclick="addHall('${r.key}')">+ agregar</button>
+        </div>
+        <div id="halls-${r.key}">${hallsHTML}</div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  cont.innerHTML = html || `<div class="empty"><div class="empty-icon">📋</div><p>Sin datos para mostrar</p></div>`;
+
+  // Show/hide enviar button
+  const showBtn = miRol && miRol !== 'admin';
+  document.getElementById('bottom-area').style.display = showBtn ? 'block' : 'none';
+
+  const bor = miRol !== 'admin' ? getBorrador(miRol) : null;
+  if (bor) {
+    const tieneAlgo = (bor.vcc || 0) > 0 || bor.hallazgos.some(h => h.desc && h.desc.trim());
+    document.getElementById('enviar-btn').disabled = !tieneAlgo;
+    document.getElementById('enviar-hint').textContent = tieneAlgo
+      ? 'Una vez enviado no podés modificarlo'
+      : 'Sumá VCC o agregá hallazgos para habilitar el envío';
+  }
+}
+
+let _saveTimer = {};
+function debounceSave(key, hi, val) {
+  const k = key+'-'+hi;
+  clearTimeout(_saveTimer[k]);
+  _saveTimer[k] = setTimeout(() => {
+    getBorrador(key).hallazgos[hi] && (getBorrador(key).hallazgos[hi].desc = val);
+    saveLocal();
+    updateEnviarBtn();
+  }, 400);
+}
+
+function debounceSaveControl(key, hi, val) {
+  const k = 'ctrl-'+key+'-'+hi;
+  clearTimeout(_saveTimer[k]);
+  _saveTimer[k] = setTimeout(() => {
+    getBorrador(key).hallazgos[hi] && (getBorrador(key).hallazgos[hi].control = val);
+    saveLocal();
+  }, 400);
+}
+
+function updFRM(key, val) {
+  getBorrador(key).frm = val;
+  saveLocal();
+}
+
+function renderHall(roleKey, hi, h) {
+  return `<div class="hall-item${h.tipo==='positivo'?' hall-positivo':''}" id="hall-${roleKey}-${hi}">
+    <textarea class="hall-desc" rows="2"
+      placeholder="${h.tipo==='positivo' ? 'Describí el aspecto positivo observado…' : 'Describí el hallazgo o desvío…'}"
+      oninput="debounceSave('${roleKey}',${hi},this.value)">${h.desc||''}</textarea>
+    ${h.tipo !== 'positivo' ? `<hr class="hall-sep">
+    <div class="hall-control-lbl">Acción / Control a aplicar</div>
+    <textarea class="hall-control" rows="2" placeholder="Ej: Revisar procedimiento de tarea, reponer EPP, re-señalizar área…"
+      oninput="debounceSaveControl('${roleKey}',${hi},this.value)">${h.control||''}</textarea>` : ''}
+    <div class="hall-actions">
+      <div class="hall-tipo-btn${h.tipo==='positivo'?' sel-positivo':''}" onclick="setTipo('${roleKey}',${hi},'positivo')">⭐ Positivo</div>
+      <div class="hall-tipo-btn${h.tipo==='momento'?' sel-momento':''}" onclick="setTipo('${roleKey}',${hi},'momento')">✓ Al momento</div>
+      <div class="hall-tipo-btn${h.tipo==='fecha'?' sel-fecha':''}" onclick="setTipo('${roleKey}',${hi},'fecha')">📅 Fecha vto.</div>
+      ${h.tipo==='fecha' ? `<input class="hall-date" type="date" value="${h.fecha_vto||''}" onchange="updHall('${roleKey}',${hi},'fecha_vto',this.value)">` : ''}
+      ${h.tipo==='fecha' ? `<div class="hall-tipo-btn${h.cerrado?' sel-cerrado':' sel-acorregir'}" onclick="togCerrado('${roleKey}',${hi})">${h.cerrado?'✓ Cerrado':'Pendiente'}</div>` : ''}
+      <div class="hall-del" onclick="delHall('${roleKey}',${hi})">✕</div>
+    </div>
+  </div>`;
+}
+
+function chgVCC(key, delta) {
+  const b = getBorrador(key);
+  b.vcc = Math.max(0, (b.vcc||0) + delta);
+  // Update ONLY the counter — never re-render the whole card (would destroy textareas)
+  const el = document.getElementById('cnt-'+key);
+  if (el) el.textContent = b.vcc;
+  // Update role-sub text
+  const card = document.getElementById('card-'+key);
+  if (card) {
+    const sub = card.querySelector('.role-sub');
+    const enviados = getEnviosHoy(curFecha, key);
+    const totalHoy = enviados.filter(row=>row[5]==='1').reduce((s,row)=>s+(parseInt(row[4])||0),0) + b.vcc;
+    if (sub) sub.textContent = `Total hoy: ${totalHoy} VCC`;
+    // Update card border color
+    const cls = semaforoClass(key);
+    card.className = `role-card ${cls}`;
+  }
+  saveLocal();
+  updateEnviarBtn();
+  renderCuotaBanner();
+}
+
+function updateEnviarBtn() {
+  if (!miRol || miRol === 'admin') return;
+  const bor = getBorrador(miRol);
+  // Also check current textarea values (may not be saved yet)
+  const liveDesc = Array.from(document.querySelectorAll('.hall-desc')).some(t=>t.value.trim());
+  const tieneAlgo = (bor.vcc||0) > 0 || bor.hallazgos.some(h=>h.desc&&h.desc.trim()) || liveDesc;
+  const btn = document.getElementById('enviar-btn');
+  if(btn) {
+    btn.disabled = !tieneAlgo;
+    document.getElementById('enviar-hint').textContent = tieneAlgo
+      ? 'Una vez enviado no podés modificarlo'
+      : 'Sumá VCC o agregá hallazgos para habilitar el envío';
+  }
+}
+
+function addHall(key) {
+  const bor = getBorrador(key);
+  const hi = bor.hallazgos.length;
+  bor.hallazgos.push({ desc:'', tipo:null, fecha_vto:'', cerrado:false, control:'' });
+  saveLocal();
+  // Sync all current textarea values before re-render
+  syncTextareas(key);
+  renderHallsOf(key);
+  updateEnviarBtn();
+}
+
+function syncTextareas(key) {
+  const bor = getBorrador(key);
+  bor.hallazgos.forEach((h, hi) => {
+    const desc = document.querySelector(`#hall-${key}-${hi} .hall-desc`);
+    const ctrl = document.querySelector(`#hall-${key}-${hi} .hall-control`);
+    if (desc) h.desc = desc.value;
+    if (ctrl) h.control = ctrl.value;
+  });
+  const frmEl = document.getElementById(`frm-sel-${key}`);
+  if (frmEl) bor.frm = frmEl.value;
+  saveLocal();
+}
+
+function renderHallsOf(key) {
+  const cont = document.getElementById('halls-'+key);
+  if (!cont) return;
+  const bor = getBorrador(key);
+  cont.innerHTML = bor.hallazgos.length
+    ? bor.hallazgos.map((h,hi) => renderHall(key,hi,h)).join('')
+    : `<div class="no-hall">Sin hallazgos, desvíos ni aspectos positivos registrados</div>`;
+}
+
+function updHall(key, hi, field, val) {
+  const h = getBorrador(key).hallazgos[hi];
+  if(h) h[field] = val;
+  saveLocal();
+  updateEnviarBtn();
+}
+
+function setTipo(key, hi, tipo) {
+  syncTextareas(key);
+  const h = getBorrador(key).hallazgos[hi];
+  if(!h) return;
+  h.tipo = h.tipo === tipo ? null : tipo;
+  if(tipo === 'momento') h.cerrado = true;
+  if(tipo === 'positivo') h.cerrado = false;
+  saveLocal();
+  renderHallsOf(key);
+}
+
+function togCerrado(key, hi) {
+  syncTextareas(key);
+  const h = getBorrador(key).hallazgos[hi];
+  if(h) h.cerrado = !h.cerrado;
+  saveLocal();
+  renderHallsOf(key);
+}
+
+function delHall(key, hi) {
+  syncTextareas(key);
+  getBorrador(key).hallazgos.splice(hi,1);
+  saveLocal();
+  renderHallsOf(key);
+  updateEnviarBtn();
+}
+
+// ══ ENVIAR AL SHEET ═══════════════════════════════════════════════════════
+async function enviarRegistro() {
+  if (isSending || !miRol || miRol === 'admin') return;
+  const bor = getBorrador(miRol);
+
+  syncTextareas(miRol);
+
+  const tieneAlgo = (bor.vcc||0) > 0 || bor.hallazgos.some(h=>h.desc&&h.desc.trim());
+  if (!tieneAlgo) { showToast('Agregá VCC o hallazgos antes de enviar', 'error'); return; }
+  if (!isOnline)  { showToast('Sin conexión — verificá internet', 'error'); return; }
+
+  isSending = true;
+  const btn = document.getElementById('enviar-btn');
+  btn.classList.add('sending');
+  document.getElementById('enviar-txt').textContent = 'Enviando…';
+  document.getElementById('enviar-icon').textContent = '⏳';
+
+  try {
+    const rol    = ROLES.find(r => r.key === miRol);
+    const hora   = nowStr();
+    const ts     = new Date().toISOString();
+    const rows   = [];
+    const vcc    = bor.vcc || 0;
+    const halls  = bor.hallazgos.filter(h => h.desc && h.desc.trim());
+
+    const frmLabel = bor.frm || '';
+    if (halls.length === 0) {
+      rows.push([curFecha, hora, rol.label, miRol, vcc, '1', frmLabel, '', '', '', '', '', ts, DEVICE_ID]);
+    } else {
+      halls.forEach((h, i) => {
+        rows.push([
+          curFecha, hora, rol.label, miRol,
+          i === 0 ? vcc : 0,
+          i === 0 ? '1' : '0',
+          i === 0 ? frmLabel : '',
+          h.tipo || '',
+          h.desc || '',
+          h.control || '',
+          h.fecha_vto || '',
+          h.cerrado ? 'SI' : 'NO',
+          ts, DEVICE_ID
+        ]);
+      });
+    }
+
+    await writeToSheet(rows);
+    clearBorrador(miRol);
+    await readSheet();
+    showToast('✓ Registro enviado', 'success');
+    btn.classList.remove('sending');
+    document.getElementById('enviar-txt').textContent = 'Enviar registro';
+    document.getElementById('enviar-icon').textContent = '↑';
+    renderHoy();
+    renderCuotaBanner();
+  } catch(e) {
+    showToast('Error al enviar — reintentá', 'error');
+    btn.classList.remove('sending');
+    document.getElementById('enviar-txt').textContent = 'Enviar registro';
+    document.getElementById('enviar-icon').textContent = '↑';
+  }
+  isSending = false;
+}
+
+// ══ VISTA MES ════════════════════════════════════════════════════════════
+function renderMes() {
+  const cont = document.getElementById('view-mes');
+  const total = getAllVccMes();
+  const { total: hallTot, cerr: hallCerr, pend: hallPend } = getHallazgosMes();
+
+  const rolRows = ROLES.map(r => {
+    const cuota = getCuota(r.key);
+    const real  = getVccMesFromSheet(r.key);
+    const cls   = semaforoClass(r.key);
+    const color = cls==='verde'?'var(--green)':cls==='rojo'?'var(--red)':'var(--txt2)';
+    const sub   = cuota
+      ? (real >= cuota ? `✓ cuota ${cuota} cumplida` : `faltan ${cuota-real} para cuota de ${cuota}`)
+      : 'sin cuota configurada';
+    return `<div class="rol-mes-row">
+      <div>
+        <div class="rol-mes-name">${r.label}</div>
+        <div class="rol-mes-detail" style="color:${color}">${sub}</div>
+      </div>
+      <div class="rol-mes-num" style="color:${color}">${real}</div>
+    </div>`;
+  }).join('');
+
+  cont.innerHTML = `
+    <div class="for-box">
+      <div class="for-title">Total VCC — ${mesLabel(curFecha)} → FOR-043</div>
+      <div class="for-num">${total}</div>
+      <div class="for-sub">Dato para el reporte mensual CN-HSS-FOR-043</div>
+    </div>
+    <div class="mes-stats">
+      <div class="mes-stat">
+        <div class="mes-stat-num" style="color:${hallTot>0?'var(--amber)':'var(--txt2)'}">${hallTot}</div>
+        <div class="mes-stat-lbl">Hallazgos detectados</div>
+      </div>
+      <div class="mes-stat">
+        <div class="mes-stat-num" style="color:${hallPend>0?'var(--red)':'var(--green)'}">${hallPend}</div>
+        <div class="mes-stat-lbl">Hallazgos pendientes</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">VCC por rol — ${mesLabel(curFecha)}</div>
+      ${rolRows}
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;font-size:11px;color:var(--txt3);line-height:1.7">
+      La calidad de las VCC (fotos, comentarios, corrección en fecha) la audita <span style="color:var(--txt2);font-weight:500">NWM vía FORWOOD</span>.
+    </div>`;
+}
+
+// ══ VISTA HISTORIAL ═══════════════════════════════════════════════════════
+function renderHist() {
+  const cont = document.getElementById('view-hist');
+  if (sheetRows.length <= 1) {
+    cont.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><p>Sin registros todavía</p></div>`;
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  sheetRows.slice(1).forEach(row => {
+    const f = row[0]; if (!f) return;
+    if (!byDate[f]) byDate[f] = [];
+    byDate[f].push(row);
+  });
+
+  const dates = Object.keys(byDate).sort().reverse().slice(0,30);
+  cont.innerHTML = dates.map(d => {
+    const rows   = byDate[d];
+    const totalV = rows.filter(r=>r[5]==='1').reduce((s,r)=>s+(parseInt(r[4])||0),0);
+    const halls  = rows.filter(r=>r[6]&&r[6].trim());
+    const pend   = halls.filter(r=>r[9]!=='SI').length;
+
+    const pills = ROLES.map(r => {
+      const vR = rows.filter(row=>row[3]===r.key&&row[5]==='1').reduce((s,row)=>s+(parseInt(row[4])||0),0);
+      return `<div class="hist-pill${vR>0?' hizo':''}">${r.short} ${vR}</div>`;
+    }).join('');
+
+    const hallTxt = halls.length
+      ? `${halls.length} hallazgo${halls.length>1?'s':''}${pend>0?' · '+pend+' pendiente'+(pend>1?'s':''):' · todos cerrados'}`
+      : '';
+
+    return `<div class="hist-card">
+      <div class="hist-header">
+        <div class="hist-fecha">${fmtFecha(d)}</div>
+        <div class="hist-total">${totalV} VCC</div>
+      </div>
+      <div class="hist-roles">${pills}</div>
+      ${hallTxt?`<div class="hist-hall-txt">${hallTxt}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ══ CUOTA CONFIG ══════════════════════════════════════════════════════════
+function openCfg() {
+  const mk = mesKey(curFecha);
+  const mc = cuotas[mk] || {};
+  document.getElementById('cfg-rows').innerHTML = ROLES.map(r=>`
+    <div class="cfg-row">
+      <div><div class="cfg-label">${r.label}</div><div class="cfg-sub">${r.short}</div></div>
+      <input class="cfg-inp" type="number" min="0" max="99" id="cfg-${r.key}" value="${mc[r.key]||0}">
+    </div>`).join('');
+  document.getElementById('cfg-ov').classList.add('open');
+}
+function closeCfgOut(e){ if(e.target===document.getElementById('cfg-ov')) document.getElementById('cfg-ov').classList.remove('open'); }
+function saveCfg() {
+  const mk = mesKey(curFecha);
+  if(!cuotas[mk]) cuotas[mk]={};
+  ROLES.forEach(r=>{ cuotas[mk][r.key]=parseInt(document.getElementById('cfg-'+r.key).value)||0; });
+  saveLocal();
+  document.getElementById('cfg-ov').classList.remove('open');
+  renderCuotaBanner();
+  if(curView==='hoy') renderHoy();
+  if(curView==='mes') renderMes();
+}
+
+// ══ NAV ══════════════════════════════════════════════════════════════════
+function setView(v) {
+  curView = v;
+  ['hoy','mes','hist'].forEach(n=>{ document.getElementById('view-'+n).style.display=n===v?'block':'none'; });
+  document.querySelectorAll('.nav-tab').forEach((el,i)=>el.classList.toggle('active',['hoy','mes','hist'][i]===v));
+  const showBottom = v==='hoy' && miRol && miRol!=='admin';
+  document.getElementById('bottom-area').style.display = showBottom ? 'block' : 'none';
+  if(v==='mes')  renderMes();
+  if(v==='hist') { renderHist(); }
+}
+
+function onDateChange(val) { curFecha=val; updateDateUI(); refresh(); }
+function moveDay(d)        { curFecha=d<0?prevDay(curFecha):nextDay(curFecha); updateDateUI(); refresh(); }
+function goToday()         { curFecha=todayStr(); updateDateUI(); refresh(); }
+function updateDateUI()    { document.getElementById('date-inp').value=curFecha; document.getElementById('mes-label') && (document.getElementById('mes-label').textContent=mesLabel(curFecha)); }
+
+async function refresh() {
+  await readSheet();
+  renderCuotaBanner();
+  if(curView==='hoy')  renderHoy();
+  if(curView==='mes')  renderMes();
+  if(curView==='hist') renderHist();
+}
+
+function onRolChange(val) {
+  miRol = val;
+  saveLocal();
+  renderHoy();
+}
+
+// ══ TOAST ════════════════════════════════════════════════════════════════
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type?' '+type:'');
+  setTimeout(()=>t.className='toast', 2500);
+}
+
+// ══ INIT ═════════════════════════════════════════════════════════════════
+async function init() {
+  loadLocal();
+  document.getElementById('date-inp').value = curFecha;
+  if(miRol) document.getElementById('mi-rol').value = miRol;
+
+  // Show loading
+  document.getElementById('view-hoy').innerHTML = `<div class="loading"><span class="loading-spin">⟳</span>Conectando con el registro…</div>`;
+
+  await checkOnline();
+  await initSheet();
+  await readSheet();
+
+  renderCuotaBanner();
+  renderHoy();
+
+  // Refresh every 60 seconds
+  setInterval(async ()=>{ await readSheet(); renderCuotaBanner(); if(curView==='hoy')renderHoy(); if(curView==='mes')renderMes(); }, 60000);
+}
+
+init();
+</script>
+</body>
+</html>
